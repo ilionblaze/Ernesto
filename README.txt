@@ -1,0 +1,1 @@
+mvn install:install-file -Dfile=storm-contrib-mongo-0.1-SNAPSHOT.jar -DgroupId=storm -DartifactId=storm-contrib-mongo -Dversion=0.1-SNAPSHOT -Dpackaging=jar -DgeneratePom=true
