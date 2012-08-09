@@ -8,7 +8,7 @@
     <artifactId>Ernesto</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
-    <name>Transactions</name>
+    <name>TransactionSpout</name>
 
     <repositories>
         <repository>
@@ -19,6 +19,17 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.rabbitmq</groupId>
+            <artifactId>amqp-client</artifactId>
+            <version>2.7.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongo-java-driver</artifactId>
+            <version>2.0</version>
+        </dependency>
+
+        <dependency>
             <groupId>storm</groupId>
             <artifactId>storm</artifactId>
             <version>0.7.2</version>
@@ -26,7 +37,7 @@
         <dependency>
             <groupId>com.rapportive</groupId>
             <artifactId>storm-amqp-spout</artifactId>
-            <version>0.1.1</version>
+            <version>0.1.4</version>
         </dependency>
         <dependency>
             <groupId>com.rapportive</groupId>
@@ -40,5 +51,97 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <sourceDirectory>src</sourceDirectory>
+        <plugins>
+            <!--
+            bind the maven-assembly-plugin to the package phase
+            this will create a jar file without the storm dependencies
+            suitable for deployment to a cluster.
+            -->
+            <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <configuration>
+                <executable>java</executable>
+                <arguments>
+                    <argument>-classpath</argument>
+                    <argument>TransactionSpout</argument>
+                </arguments>
+            </configuration>
+        </plugin>
 
+        <!--
+                    <plugin>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <configuration>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                            <archive>
+                                <manifest>
+                                    <mainClass>TransactionSpout</mainClass>
+                                </manifest>
+                            </archive>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>make-assembly</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+
+                    </plugin>
+        -->
+
+  <!--          <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.0</version>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>1.4</version>
+                <configuration>
+                    <createDependencyReducedPom>true</createDependencyReducedPom>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>META-INF/*.SF</exclude>
+                                <exclude>META-INF/*.DSA</exclude>
+                                <exclude>META-INF/*.RSA</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>TransactionSpout</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
 </project>
